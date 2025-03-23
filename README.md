@@ -41,15 +41,13 @@ Create anaconda python environment
 conda create -n yolo-nas python=3.9 -y
 conda activate yolo-nas
 ```
-**PyTorch v1.11.0** Installation
+**PyTorch v2.2.0** Installation
 ```
+
+
 # conda installation
-conda install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3 -c pytorch -y
+conda install pytorch==2.2.0 torchvision==0.17.0 torchaudio==2.2.0 pytorch-cuda=12.1 -c pytorch -c nvidia
 
-/// OR
-
-# PIP installation
-pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu113
 ```
 **Quantization Aware Training**
 ```
@@ -58,7 +56,7 @@ pip install pytorch-quantization==2.1.2 --extra-index-url https://pypi.ngc.nvidi
 ```
 Install **Super-Gradients**
 ```
-pip install super-gradients==3.1.3
+pip install super-gradients==3.7.1
 ```
 
 ### 🎒 Prepare Dataset
@@ -145,6 +143,7 @@ python3 train.py --data /dir/dataset/data.yaml --batch 6 --epoch 100 --model yol
 python3 train.py --data /dir/dataset/data.yaml --batch 6 --epoch 100 --model yolo_nas_m --size 640 \
                  --weight runs/train2/ckpt_latest.pth --resume
 ```
+
 
 ### Quantization Aware Training
 

@@ -3,13 +3,14 @@ from super_gradients.training.datasets.detection_datasets.coco_format_detection 
 from super_gradients.training.transforms.transforms import DetectionMosaic, DetectionRandomAffine, DetectionHSV, \
     DetectionHorizontalFlip, DetectionPaddedRescale, DetectionStandardize, DetectionTargetsFormatTransform
 from super_gradients.training.datasets.datasets_utils import worker_init_reset_seed
-from super_gradients.training.utils.detection_utils import CrowdDetectionCollateFN
+from super_gradients.training.utils.collate_fn import CrowdDetectionCollateFN
 from super_gradients.training.pre_launch_callbacks import modify_params_for_qat
 from super_gradients.training.metrics import DetectionMetrics_050
 from super_gradients.training.losses import PPYoloELoss
 from super_gradients.training import dataloaders
 from super_gradients.training import Trainer
 from super_gradients.training import models
+from super_gradients.training.utils.distributed_training_utils import setup_device
 import argparse
 import torch
 import time
@@ -92,13 +93,19 @@ if __name__ == '__main__':
     # Training on GPU or CPU
     if args['cpu']:
         print('[INFO] Training on \033[1mCPU\033[0m')
-        trainer = Trainer(experiment_name=name, ckpt_root_dir='runs', device='cpu')
+        setup_device(device='cpu')
+
+        # trainer = Trainer(experiment_name=name, ckpt_root_dir='runs', device='cpu')
     elif args['gpus']:
         print(f'[INFO] Training on GPU: \033[1m{torch.cuda.get_device_name()}\033[0m')
-        trainer = Trainer(experiment_name=name, ckpt_root_dir='runs', multi_gpu=args['gpus'])
+        # trainer = Trainer(experiment_name=name, ckpt_root_dir='runs', multi_gpu=args['gpus'])
+        setup_device(device='cuda', multi_gpu=True)
+
     else:
         print(f'[INFO] Training on GPU: \033[1m{torch.cuda.get_device_name()}\033[0m')
-        trainer = Trainer(experiment_name=name, ckpt_root_dir='runs')
+        setup_device(device='cuda')
+
+    trainer = Trainer(experiment_name=name, ckpt_root_dir='runs' )
 
     # Load Path Params
     yaml_params = yaml.safe_load(open(args['data'], 'r'))
