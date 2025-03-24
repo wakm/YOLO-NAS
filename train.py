@@ -30,6 +30,8 @@ if __name__ == '__main__':
                     help="Checkpoint dir name")
     ap.add_argument("-b", "--batch", type=int, default=6,
                     help="Training batch size")
+    ap.add_argument("-ba", "--batch-accumulate", type=int, default=1,
+                    help="In case you have a GPU with limited memory, you can use the gradients accumulation technique to fake larger batch sizes. This is not 100% equivalent to training with larger batch sizes, but it is a good approximation. You can set the desired number of batches to accumulate by changing the training_hyperparams.batch_accumulate parameter.")
     ap.add_argument("-e", "--epoch", type=int, default=100,
                     help="Training number of epochs")
     ap.add_argument("-j", "--worker", type=int, default=2,
@@ -106,7 +108,7 @@ if __name__ == '__main__':
         print(f'[INFO] Training on GPU: \033[1m{torch.cuda.get_device_name()}\033[0m')
         setup_device(device='cuda')
 
-    trainer = Trainer(experiment_name=name, ckpt_root_dir='runs' )
+    trainer = Trainer(experiment_name=name, ckpt_root_dir='runs')
 
     # Load Path Params
     yaml_params = yaml.safe_load(open(args['data'], 'r'))
@@ -136,6 +138,7 @@ if __name__ == '__main__':
     train_dataloader_params = {
                                 "shuffle": True,
                                 "batch_size": args['batch'],
+                                "batch_accumulate": args['batch-accumulate'],
                                 "drop_last": False,
                                 "pin_memory": True,
                                 "collate_fn": CrowdDetectionCollateFN(),
@@ -157,6 +160,7 @@ if __name__ == '__main__':
     val_dataloader_params = {
                             "shuffle": False,
                             "batch_size": int(args['batch']*2),
+                            "batch_accumulate": int(args['batch-accumulate']*2),
                             "num_workers": args['worker'],
                             "drop_last": False,
                             "pin_memory": True,
@@ -180,6 +184,7 @@ if __name__ == '__main__':
         test_loader = dataloaders.get(dataset=testset, dataloader_params={
                                         "shuffle": False,
                                         "batch_size": int(args['batch']*2),
+                                        "batch_accumulate": int(args['batch-accumulate']*2),
                                         "num_workers": args['worker'],
                                         "drop_last": False,
                                         "pin_memory": True,
